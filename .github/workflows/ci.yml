@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -22,7 +22,7 @@ jobs:
       - name: Creer fichier .env
         run: |
           echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
+          echo "DB_PORT=3307" >> .env
           echo "DB_NAME=labo03_db" >> .env
           echo "DB_USER=labo03" >> .env
           echo "DB_PASS=labo03" >> .env

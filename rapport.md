@@ -15,6 +15,19 @@ Montréal, le 3 octobre 2025 \
 
 > Quel nombre d'unités de stock pour votre article avez-vous obtenu à la fin du test ? Et pour l'article avec id=2 ? Veuillez inclure la sortie de votre Postman pour illustrer votre réponse.
 
+Lors de l'exécution des _smoke tests_, je n'avais pas besoin d'avoir l'application python déployée sur docker, mais je devais avoir le conteneur _mysql-1_ qui fonctionne.
+
+Après avoir exécuté ceux-ci, le nombre d'unités de stock de l'arrticle est le même qu'au début (après la création de l'article et l'ajout du stock). Dans mon cas, ce sera toujours 5 dû à la variable `add_stock_qty`. Cependant cette valeur est changeable, au besoin :
+
+```python
+# 2. Ajoutez 5 unités au stock de cet article (`POST /stocks`)
+add_stock_qty = 5
+add_stock_body = {'product_id': data.get('product_id'), 'quantity': add_stock_qty}
+```
+
+Si on démarre le conteneur de l'application python, on peut voir que le nombre d'unités de stock de l'article avec id = 2 est de 500 :
+![alt text](image.png)
+
 ### Question 2
 
 > Décrivez l'utilisation de la méthode join dans ce cas. Utilisez les méthodes telles que décrites à Simple Relationship Joins et Joins to a Target with an ON Clause dans la documentation SQLAlchemy pour ajouter les colonnes demandées dans cette activité. Veuillez inclure le code pour illustrer votre réponse.
