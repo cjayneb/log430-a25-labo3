@@ -93,6 +93,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create Docker network
+        run: docker network create labo03-network
+
       - name: Deploy app
         run: |
           docker compose down -v || true
