@@ -1,17 +1,27 @@
 services:
   store_manager:
     build: .
-    environment:
-      - PYTHONUNBUFFERED=1
     volumes:
       - .:/app
     ports:
       - "5000:5000"
     networks:
       - labo03-network
+    environment:
+      PYTHONUNBUFFERED: 1
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: labo03
+      DB_PASS: labo03
+      DB_NAME: labo03_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   mysql:
     image: mysql:8
