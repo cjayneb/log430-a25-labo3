@@ -94,11 +94,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create Docker network
-        run: docker network create labo03-network
+        run: |
+          docker compose down -v || true
+          docker network rm labo03_network || true
+          docker network create labo03-network
 
       - name: Deploy app
         run: |
-          docker compose down -v || true
           docker compose build
           docker compose up -d
 
