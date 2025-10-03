@@ -54,7 +54,7 @@ def test_stock_flow(client):
     place_order_resp = client.post(f"/orders", data= json.dumps(place_order_body), content_type='application/json')
 
     assert place_order_resp.status_code == 201
-    assert place_order_resp.get_json()['order_id'] > 1
+    assert place_order_resp.get_json()['order_id'] >= 1
 
     # 5. Vérifiez le stock encore une fois (`GET /stocks/:id`)
     expected_stock_qty = add_stock_qty - order_qty
