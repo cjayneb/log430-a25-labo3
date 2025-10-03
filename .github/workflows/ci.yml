@@ -96,7 +96,7 @@ jobs:
       - name: Create Docker network
         run: |
           docker compose down -v || true
-          docker network rm labo03_network || true
+          docker network rm labo03-network || true
           docker network create labo03-network
 
       - name: Deploy app
