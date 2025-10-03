@@ -8,12 +8,44 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: labo03_db
+          MYSQL_USER: labo03
+          MYSQL_PASSWORD: labo03
+        ports:
+          - 3307:3306
+        volumes:
+          - ./db-init:/docker-entrypoint-initdb.d
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ulabo03 -plabo03"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -29,7 +61,29 @@ jobs:
           echo "REDIS_HOST=127.0.0.1" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "REDIS_DB=0" >> .env
+          cat .env
+
+      - name: Run init.sql
+        run: mysql -h 127.0.0.1 -P 3307 -uroot -proot labo03_db < ./db-init/init.sql
 
       - name: Run tests
-        working-directory: src
-        run: echo "Call pytest command here!"
+        working-directory: ./src
+        run: python -m pytest
+
+  deploy:
+    runs-on: self-hosted
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Fix permissions before checkout
+        run: |
+          sudo rm -rf "$GITHUB_WORKSPACE"/*
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy app
+        run: |
+          docker compose down -v || true
+          docker compose build
+          docker compose up -d

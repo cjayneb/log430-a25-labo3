@@ -32,6 +32,26 @@ Si on démarre le conteneur de l'application python, on peut voir que le nombre 
 
 > Décrivez l'utilisation de la méthode join dans ce cas. Utilisez les méthodes telles que décrites à Simple Relationship Joins et Joins to a Target with an ON Clause dans la documentation SQLAlchemy pour ajouter les colonnes demandées dans cette activité. Veuillez inclure le code pour illustrer votre réponse.
 
+Dans ce cas, nous faisons un join de la table Stock et la table Product, voulant dire que nous allons chercher les champs `product_id` et `quantity` de la table Stock et les champs `name`, `sku` et `price` de la table Product, mais seulement pour les lignes où le champ `product_id` de la table Stock est égale au champ `id` de la table Product. Dans la première partie de l'appel, on décrit les champs qu'on veut avoir comme résultat et dans la deuxième on décrit comment fusionner les deux tables
+
+```python
+results = session.query(
+    Stock.product_id,
+    Stock.quantity,
+    Product.name,
+    Product.sku,
+    Product.price
+).join(Product, Stock.product_id==Product.id)
+```
+
+Cet appel de fonction serait l'équivalent de la requête SQL suivante :
+
+```sql
+SELECT stock.product_id, stock.quantity, product.name, product.sku, product.price
+FROM stock
+JOIN product ON stock.product_id = product.id
+```
+
 ### Question 3
 
 > Quels résultats avez-vous obtenus en utilisant l’endpoint POST /stocks/graphql-query avec la requête suggérée ? Veuillez joindre la sortie de votre requête dans Postman afin d’illustrer votre réponse.
