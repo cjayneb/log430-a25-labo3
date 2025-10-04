@@ -89,19 +89,19 @@ def update_stock_redis(order_items, operation):
             else:  
                 new_quantity = current_stock - quantity
             
-            pipeline.hset(f"stock:{product_id}", "quantity", new_quantity)
+            pipeline.hset(f"stock:{product_id}", f"quantity:{new_quantity}", f"name:{item['name']}", f"sku:{item['sku']}", f"price:{item['price']}")
         
         pipeline.execute()
     
     else:
-        _populate_redis_from_mysql(r)
+        populate_redis_from_mysql(r)
 
-def _populate_redis_from_mysql(redis_conn):
+def populate_redis_from_mysql(redis_conn):
     """ Helper function to populate Redis from MySQL stocks table """
     session = get_sqlalchemy_session()
     try:
         stocks = session.execute(
-            text("SELECT product_id, quantity FROM stocks")
+            text("SELECT stocks.product_id, stocks.quantity, products.name, products.sku, products.price FROM stocks JOIN products ON stocks.product_id = products.id")
         ).fetchall()
 
         if not len(stocks):
@@ -110,10 +110,10 @@ def _populate_redis_from_mysql(redis_conn):
         
         pipeline = redis_conn.pipeline()
         
-        for product_id, quantity in stocks:
+        for product_id, quantity, name, sku, price in stocks:
             pipeline.hset(
                 f"stock:{product_id}", 
-                mapping={ "quantity": quantity }
+                mapping={ "quantity": quantity, "name": name, "sku": sku, "price": str(price) }
             )
         
         pipeline.execute()

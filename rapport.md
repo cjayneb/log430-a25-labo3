@@ -126,9 +126,50 @@ def add_order_to_redis(order_id, user_id, total_amount, items):
 
 > Quelles lignes avez-vous changé dans update_stock_redis? Veuillez joindre du code afin d’illustrer votre réponse.
 
+J'ai dû modifier la ligne qui enregistre la valeur `name` pour prendre la valeur directement du `product_data`, et ajouter les lignes pour enregistrer les valeurs `sku` et `price` de `product_data`:
+
+```python
+def resolve_product(self, info, id):
+  """ Create an instance of Product based on stock info for that product that is in Redis """
+  redis_client = get_redis_conn()
+  product_data = redis_client.hgetall(f"stock:{id}")
+  if product_data:
+      return Product(
+          id=id,
+          name=product_data['name'],
+          quantity=int(product_data['quantity']),
+          sku=product_data['sku'],
+          price=float(product_data['price'])
+      )
+  return None
+```
+
+Ensuite, dans la méthode `update_stock_redis`, j'ai ajouté les champs nécessaire lors de l'enregistrement du stock dans redis :
+
+```python
+pipeline.hset(f"stock:{product_id}", f"quantity:{new_quantity}", f"name:{item['name']}", f"sku:{item['sku']}", f"price:{item['price']}")
+```
+
 ### Question 5
 
 > Quels résultats avez-vous obtenus en utilisant l’endpoint POST /stocks/graphql-query avec les améliorations ? Veuillez joindre la sortie de votre requête dans Postman afin d’illustrer votre réponse.
+
+Voici le retour de la requête GrapQL après l'amélioration :
+
+```json
+{
+  "data": {
+    "product": {
+      "id": 1,
+      "name": "Laptop ABC",
+      "price": 1999.99,
+      "quantity": 1000,
+      "sku": "LP12567"
+    }
+  },
+  "errors": null
+}
+```
 
 ### Question 6
 

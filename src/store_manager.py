@@ -4,6 +4,8 @@ SPDX - License - Identifier: LGPL - 3.0 - or -later
 Auteurs : Gabriel C. Ullmann, Fabio Petrillo, 2025
 """
 from graphene import Schema
+from db import get_redis_conn
+from stocks.commands.write_stock import populate_redis_from_mysql
 from stocks.schemas.query import Query
 from flask import Flask, request, jsonify
 from orders.controllers.order_controller import create_order, remove_order, get_order, get_report_highest_spending_users, get_report_best_selling_products
@@ -106,4 +108,5 @@ def graphql_supplier():
 
 # Start Flask app
 if __name__ == '__main__':
+    populate_redis_from_mysql(get_redis_conn())
     app.run(host='0.0.0.0', port=5000)

@@ -40,7 +40,10 @@ services:
       - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
       test:
-        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ulabo02", "-plabo02"]
+        [
+          "CMD-SHELL",
+          "mysql -h localhost -ulabo03 -plabo03 labo03_db -e 'SELECT * FROM products LIMIT 1;' || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
