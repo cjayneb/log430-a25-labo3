@@ -26,7 +26,7 @@ def test_stock_flow(client):
     response = client.post('/products',
                           data=json.dumps(product_data),
                           content_type='application/json')
-    
+    print(response.get_json())
     assert response.status_code == 201
     data = response.get_json()
     assert data['product_id'] > 0
@@ -52,7 +52,7 @@ def test_stock_flow(client):
     place_order_body = { "user_id": 1, "items": [{"product_id": data['product_id'], "quantity": order_qty}] }
 
     place_order_resp = client.post(f"/orders", data= json.dumps(place_order_body), content_type='application/json')
-
+    print(place_order_resp.get_json())
     assert place_order_resp.status_code == 201
     assert place_order_resp.get_json()['order_id'] >= 1
 

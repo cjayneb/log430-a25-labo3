@@ -175,16 +175,25 @@ Voici le retour de la requête GrapQL après l'amélioration :
 
 > Examinez attentivement le fichier docker-compose.yml du répertoire scripts, ainsi que celui situé à la racine du projet. Qu’ont-ils en commun ? Par quel mécanisme ces conteneurs peuvent-ils communiquer entre eux ? Veuillez joindre du code YML afin d’illustrer votre réponse.
 
+Le docker network est ce qu'il leur permet de communiquer entre eux. Voici la partie de cahcun des fichier docker-compose.yml qui assure cette connexion :
+
+```yaml
+networks:
+  labo03-network:
+    driver: bridge
+    external: true
+```
+
 ## Observations additionnelles
 
 ### Configuration CI/CD
 
--
+Le workflow de GitHub Actions s'exécute sur un self hosted runner qui se trouve sur la machine virtuelle de l'école.
+
+La pipeline de CI met en place les services MySQL et Redis, installe les dépendances, et exécute les tests python.
+
+Ensuite, l'application est déployée à l'aide de `docker compose` et elle est accessible via l'adresse IP de ma machine virtuelle (10.194.32.206) au port 5000
 
 ### Problèmes rencontrés
 
--
-
-```
-
-```
+- N/A
