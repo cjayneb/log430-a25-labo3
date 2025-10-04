@@ -56,6 +56,72 @@ JOIN product ON stock.product_id = product.id
 
 > Quels résultats avez-vous obtenus en utilisant l’endpoint POST /stocks/graphql-query avec la requête suggérée ? Veuillez joindre la sortie de votre requête dans Postman afin d’illustrer votre réponse.
 
+Sans aucun changement au code, la réponse de ce endpoint est la suivante :
+
+```json
+{
+  "data": {
+    "product": null
+  },
+  "errors": null
+}
+```
+
+Cependant, après avoir fait une requête POST sur les stocks, redis est synchronisé et le résultat est le suivante :
+
+```json
+{
+  "data": {
+    "product": {
+      "id": 1,
+      "quantity": 5
+    }
+  },
+  "errors": null
+}
+```
+
+Cela est parce que la synchronisation de redis avec MySQL se fait seulement lors d'une opération qui ajoute une commande ou une quantité d'article dans MySQL :
+
+```python
+def set_stock_for_product(product_id, quantity):
+  """Set stock quantity for product in MySQL"""
+  session = get_sqlalchemy_session()
+  try:
+      result = session.execute(
+          text(f"""
+              UPDATE stocks
+              SET quantity = :qty
+              WHERE product_id = :pid
+          """),
+          {"pid": product_id, "qty": quantity}
+      )
+      response_message = f"rows updated: {result.rowcount}"
+      if result.rowcount == 0:
+          new_stock = Stock(product_id=product_id, quantity=quantity)
+          session.add(new_stock)
+          session.flush()
+          session.commit()
+          response_message = f"rows added: {new_stock.product_id}"
+
+      r = get_redis_conn()
+      r.hset(f"stock:{product_id}", "quantity", quantity)
+```
+
+```python
+def add_order_to_redis(order_id, user_id, total_amount, items):
+  """Insert order to Redis"""
+  r = get_redis_conn()
+  r.hset(
+      f"order:{order_id}",
+      mapping={
+          "user_id": user_id,
+          "total_amount": float(total_amount),
+          "items": json.dumps(items)
+      }
+  )
+```
+
 ### Question 4
 
 > Quelles lignes avez-vous changé dans update_stock_redis? Veuillez joindre du code afin d’illustrer votre réponse.
@@ -77,3 +143,7 @@ JOIN product ON stock.product_id = product.id
 ### Problèmes rencontrés
 
 -
+
+```
+
+```
